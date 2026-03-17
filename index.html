@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+  <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
@@ -138,18 +138,30 @@ function scramble(word) {
   }
   return arr.join("") === word ? scramble(word) : arr.join("");
 }
-const SCORES_KEY = "genlayer-anagram-leaderboard";
+const JSONBIN_ID = "69b9d7fcc3097a1dd53482b6";
+const JSONBIN_KEY = "$2a$10$bhFKBMBLFZnZnDQkSXNIXO2QG5RmK36gP10mYdzUs2RFfKNB5h0Ru";
+const JSONBIN_URL = "https://api.jsonbin.io/v3/b/" + JSONBIN_ID;
 
 async function loadSharedScores() {
   try {
-    const result = await window.storage.get(SCORES_KEY, true);
-    return result ? JSON.parse(result.value) : [];
+    const res = await fetch(JSONBIN_URL + "/latest", {
+      headers: { "X-Master-Key": JSONBIN_KEY }
+    });
+    const data = await res.json();
+    return data.record.scores || [];
   } catch { return []; }
 }
 
 async function saveSharedScores(scores) {
   try {
-    await window.storage.set(SCORES_KEY, JSON.stringify(scores), true);
+    await fetch(JSONBIN_URL, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        "X-Master-Key": JSONBIN_KEY
+      },
+      body: JSON.stringify({ scores })
+    });
   } catch {}
 }
 
